@@ -45,8 +45,8 @@ int main(void)
   }
 
   //mandamos 1 solo datagrama de solicitud
-  // Aqui habia un for
-  printf("Enviando solicitud al servidor %d\n");
+  // Aqui habia un ciclo for
+  printf("Enviando solicitud al servidor ... \n");
   sprintf(buf, "Datagrama %d\n", NPACK);
   //mandamos buf con la cadena Datagrama 0.1.2...", al servidor
   if (sendto(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Servidor, slen)==-1)

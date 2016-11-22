@@ -9,7 +9,7 @@
 #include <time.h>
 
 #define BUFLEN 512 //tamaño de datos recibidos
-#define NPACK 10 //cuantos paquetes
+#define NPACK 10    //cuantos paquetes
 #define PORT 9930  //puerto a usar
 
 //función para manejo de mensaje de error
