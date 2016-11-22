@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define BUFLEN 512 //tamaño de datos recibidos
 #define NPACK 10 //cuantos paquetes
@@ -20,6 +21,11 @@ void mensajeError(char *s)
 
 int main(void)
 {
+  
+  //estructura para guardar el tiempo local del servidor
+  time_t tiempo = time(0);
+  struct tm *tlocal = localtime(&tiempo);
+
   //estructuras para guardar datos de cliente y servidor
   struct sockaddr_in Servidor, Cliente;
   int IdSocket, i, slen=sizeof(Cliente);

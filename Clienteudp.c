@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define BUFLEN 512  //cuantos datos 
 #define NPACK 10  //cuantos datagramas
