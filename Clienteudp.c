@@ -9,8 +9,8 @@
 #include <time.h>
 
 #define BUFLEN 512  //cuantos datos 
-#define NPACK 10  //cuantos datagramas
-#define PORT 9930 //puerto a usar
+#define NPACK 1     //cuantos datagramas
+#define PORT 9930   //puerto a usar
 #define SRV_IP "127.0.0.1" //Ip del servidor
 
 //función para menejo de errores
@@ -44,14 +44,13 @@ int main(void)
     exit(1);
   }
 
-  //mandamos n datagramas
-  for (i=0; i<NPACK; i++) {
-    printf("Mandando información del datagrama %d\n", i);
-    sprintf(buf, "Datagrama %d\n", i);
-    //mandamos buf con la cadena Datagrama 0.1.2...", al servidor
-    if (sendto(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Servidor, slen)==-1)
-      mensajeError("Error en enviar datagrama");
-  }
+  //mandamos 1 solo datagrama de solicitud
+  // Aqui habia un for
+  printf("Enviando solicitud al servidor %d\n");
+  sprintf(buf, "Datagrama %d\n", NPACK);
+  //mandamos buf con la cadena Datagrama 0.1.2...", al servidor
+  if (sendto(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Servidor, slen)==-1)
+    mensajeError("Error en enviar datagrama");
 
   //cerramos punto de comunicación
   close(IdSocket);

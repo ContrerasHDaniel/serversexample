@@ -21,7 +21,6 @@ void mensajeError(char *s)
 
 int main(void)
 {
-  
   //estructura para guardar el tiempo local del servidor
   time_t tiempo = time(0);
   struct tm *tlocal = localtime(&tiempo);
