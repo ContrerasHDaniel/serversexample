@@ -52,6 +52,13 @@ int main(void)
   if (sendto(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Servidor, slen)==-1)
     mensajeError("Error en enviar datagrama");
 
+  //recibimos el paquete con la fecha local del servidor
+  if (recvfrom(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Servidor, &slen)==-1)
+       mensajeError("Error en recvfrom()");
+
+  printf("Recibiendo datos del datagrama desde %s:%d\nData: %s\n", 
+  inet_ntoa(Servidor.sin_addr), ntohs(Servidor.sin_port), buf);
+
   //cerramos punto de comunicación
   close(IdSocket);
   return 0;

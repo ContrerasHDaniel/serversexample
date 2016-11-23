@@ -39,18 +39,24 @@ int main(void)
   Servidor.sin_family = AF_INET; //ponemos datos de IP y su puerto y aceptamos datos en cualquier dirección ip local
   Servidor.sin_port = htons(PORT);
   Servidor.sin_addr.s_addr = htonl(INADDR_ANY);
+
   //asociamos el socket ya creado con los datos de la estructura de direccionamiento IP
   if (bind(IdSocket, (struct sockaddr*)&Servidor, sizeof(Servidor))==-1)
       mensajeError("Error en bind");
 
+  // Aqui habia un ciclo for
   //recibimos N paquetes y lo guardamos en el buf, desde el CLIENTE: Cliente
-  for (i=0; i<NPACK; i++) {
-    if (recvfrom(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Cliente, &slen)==-1)
+  if (recvfrom(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Cliente, &slen)==-1)
       mensajeError("Error en recvfrom()");
-    //mostramos datos recibidos y de quien
-    printf("Recibiendo datos del datagrama desde %s:%d\nData: %s\n", 
-      inet_ntoa(Cliente.sin_addr), ntohs(Cliente.sin_port), buf);
-  }
+    
+  //Enviamos el paquete luego de recibir la solicitud desde el cliente.
+  if(sendto(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Cliente,slen)==-1)
+    mensajeError("Error en enviar datagrama");
+
+  //mostramos datos recibidos y de quien
+  printf("Recibiendo datos del datagrama desde %s:%d\nData: %s\n", 
+  inet_ntoa(Cliente.sin_addr), ntohs(Cliente.sin_port), buf);
+
   //cerramos socket.
   close(IdSocket);
   return 0;
