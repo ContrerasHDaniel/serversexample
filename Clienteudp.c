@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define BUFLEN 512  //cuantos datos 
 #define NPACK 1     //cuantos datagramas
@@ -46,19 +47,31 @@ int main(void)
 
   //mandamos 1 solo datagrama de solicitud
   // Aqui habia un ciclo for
-  printf("Enviando solicitud al servidor ... \n");
+  printf("Enviando solicitud al servidor... \n");
   sprintf(buf, "Datagrama %d\n", NPACK);
   //mandamos buf con la cadena Datagrama 0.1.2...", al servidor
   if (sendto(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Servidor, slen)==-1)
     mensajeError("Error en enviar datagrama");
 
+  const struct timeval *tv;
   //recibimos el paquete con la fecha local del servidor
-  if (recvfrom(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Servidor, &slen)==-1)
+  if (recvfrom(IdSocket, &tv, BUFLEN, 0, (struct sockaddr*)&Servidor, &slen)==-1)
        mensajeError("Error en recvfrom()");
 
-  printf("Recibiendo datos del datagrama desde %s:%d\nData: %s\n", 
-  inet_ntoa(Servidor.sin_addr), ntohs(Servidor.sin_port), buf);
+  //cambiamos la fecha y hora del sistema.
+  if(settimeofday(tv,0)!=0){
 
+    printf("Fecha y hora cambiadas con exito. \n");
+  }
+  else
+  {
+    mensajeError("Error al cambiar fecha y hora. Revise que tenga permisos de superusuario.");
+  }
+  time_t tiempo = time(0);
+  struct tm *tlocal2 = localtime(&tiempo);
+  char output[128];
+  strftime(output,128,"%d/%m/%y %H:%M:%S",tlocal2);
+  printf("%s\n",output);
   //cerramos punto de comunicación
   close(IdSocket);
   return 0;

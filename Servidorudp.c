@@ -24,6 +24,9 @@ int main(void)
   //estructura para guardar el tiempo local del servidor
   time_t tiempo = time(0);
   struct tm *tlocal = localtime(&tiempo);
+  char output[128];
+  strftime(output,128,"%d/%m/%y %H:%M:%S",tlocal);
+  printf("%s\n",output);
 
   //estructuras para guardar datos de cliente y servidor
   struct sockaddr_in Servidor, Cliente;
@@ -48,14 +51,17 @@ int main(void)
   //recibimos N paquetes y lo guardamos en el buf, desde el CLIENTE: Cliente
   if (recvfrom(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Cliente, &slen)==-1)
       mensajeError("Error en recvfrom()");
-    
-  //Enviamos el paquete luego de recibir la solicitud desde el cliente.
-  if(sendto(IdSocket, buf, BUFLEN, 0, (struct sockaddr*)&Cliente,slen)==-1)
-    mensajeError("Error en enviar datagrama");
 
   //mostramos datos recibidos y de quien
   printf("Recibiendo datos del datagrama desde %s:%d\nData: %s\n", 
   inet_ntoa(Cliente.sin_addr), ntohs(Cliente.sin_port), buf);
+    
+  // Enviamos el paquete luego de recibir la solicitud desde el cliente.
+  // Creamos una estructura de timeval con el valor de la hora y fecha locales del servidor
+  // para almacenarlas y enviarlas al Cliente.
+  const struct timeval *tv = {mktime(tlocal), 0};
+  if(sendto(IdSocket, &tv, BUFLEN, 0, (struct sockaddr*)&Cliente,slen)==-1)
+    mensajeError("Error en enviar datagrama");
 
   //cerramos socket.
   close(IdSocket);
