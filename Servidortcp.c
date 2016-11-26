@@ -8,6 +8,12 @@
 #include <signal.h>
 #include <pthread.h>
 #include <string.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include  <fcntl.h>
+
+#define FILENAME "recibido.txt"
 
 // Identificador del socket por el que
 // se escucha
@@ -16,6 +22,12 @@ int IdServidor;
 // Identificador del socket con el que
 // nos comunicaremos con el cliente
 int IdCliente;
+
+ssize_t len;
+char buffer[BUFSIZ];
+int file_size;
+FILE *received_file;
+int remain_data = 0;
 
 //función para manejar interrupciones
 void Interrupcion(int Senal)
@@ -46,11 +58,6 @@ int main()
   struct sockaddr_in Cliente;
   // longitud de la dirección
   int LongCliente=sizeof(Cliente);
-
-  // Para obtener la fecha y hora y 
-  // darle formato
-  time_t Ahora;
-  char *FechaHora;
 
   // Interceptamos la señal de
   // interrupción del proceso
@@ -96,13 +103,27 @@ int main()
     // Indicamos el origen de la solicitud, convirtiendo de formato de red a host
     printf("Solicitud desde %s\n", inet_ntoa(Cliente.sin_addr));
 
-    // Le enviamos al cliente la información de la hora actual
-    Ahora=time(NULL);
-    FechaHora=ctime(&Ahora);
+    //recibimos el tamanio del archivo
+    recv(IdCliente, buffer, BUFSIZ, 0);
+    file_size = atoi(buffer);
 
-    //enviar información de hora
-    send(IdCliente,FechaHora,strlen(FechaHora)+1,0);
+    received_file = fopen(FILENAME, "w");
 
+    if (received_file == NULL){
+      fprintf(stderr, "Error al abrir archivo --> %s", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+
+    remain_data = file_size; //datos que faltan por escribir
+
+    while(((len = recv(IdCliente, buffer, 256, 0)) > 0) && (remain_data >= 0))
+    {
+      fwrite(buffer, sizeof(char), len, received_file);
+      remain_data -= len;
+      printf("Recibidos %d bytes y quedan: %d bytes\n",len, remain_data);
+    }
+    fclose(received_file);
+    
     // Cerramos la conexión con este cliente
     close(IdCliente);
   }
